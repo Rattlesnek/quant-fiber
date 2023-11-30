@@ -8,7 +8,7 @@ export const Visual: React.FC = () => {
     (state) => state.setRenderParams
   );
 
-  useWebRTC<RenderParamsWithDate>((receivedRenderParams) => {
+  useWebRTC<RenderParamsWithDate>("webrtc", (receivedRenderParams) => {
     setRenderParams(receivedRenderParams);
   });
 

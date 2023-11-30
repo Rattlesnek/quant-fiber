@@ -2,12 +2,16 @@ import { Button, Grid, Slider } from "@mui/material";
 import { useWebRTC } from "./tabCommunication/useWebRTC";
 import { RenderParamsWithDate } from "./types";
 import { useRenderParamsState } from "./state/renderParamsState";
+import { useState } from "react";
 
 export const Controls: React.FC = () => {
+  const [visualWindow, setVisualWindow] = useState<Window | null>(null);
   const { renderParams, setRenderParams } = useRenderParamsState();
 
-  const { sendData, startConnection, closeConnection } =
-    useWebRTC<RenderParamsWithDate>();
+  const { sendData, startConnection } =
+    useWebRTC<RenderParamsWithDate>("webrtc");
+
+  const isVisualWindowOpen = () => !!visualWindow && !visualWindow.closed;
 
   return (
     <>
@@ -40,18 +44,25 @@ export const Controls: React.FC = () => {
           />
         </Grid>
         <Grid item xs={1}>
-          <Button variant="contained" onClick={() => window.open("/visual")}>
+          <Button
+            variant="contained"
+            disabled={isVisualWindowOpen()}
+            onClick={() => {
+              if (isVisualWindowOpen()) {
+                return;
+              }
+
+              const newVisualWindow = window.open("/visual");
+              if (newVisualWindow) {
+                newVisualWindow.addEventListener("load", () => {
+                  // New visual window was fully loaded
+                  startConnection();
+                });
+                setVisualWindow(newVisualWindow);
+              }
+            }}
+          >
             Open
-          </Button>
-        </Grid>
-        <Grid item xs={1}>
-          <Button variant="contained" onClick={startConnection}>
-            Start
-          </Button>
-        </Grid>
-        <Grid item xs={1}>
-          <Button variant="contained" onClick={closeConnection}>
-            Close
           </Button>
         </Grid>
       </Grid>

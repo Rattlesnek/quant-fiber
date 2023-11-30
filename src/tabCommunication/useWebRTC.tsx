@@ -1,5 +1,4 @@
-import { RenderParamsWithDate } from "../types";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface UseWebRTCResult<S> {
   sendData: (data: S) => void;
@@ -7,43 +6,37 @@ interface UseWebRTCResult<S> {
   closeConnection: () => void;
 }
 
-let pc: RTCPeerConnection | undefined = undefined;
-let sendChannel: RTCDataChannel | undefined = undefined;
-let receiveChannel: RTCDataChannel | undefined = undefined;
-const signaling: BroadcastChannel = new BroadcastChannel("webrtc");
-
 export function useWebRTC<S>(
+  broadcastChannelName: string,
   onReceiveData?: (data: S) => void
 ): UseWebRTCResult<S> {
-  /////// PASTED CODE Start
+  const pcRef = useRef<RTCPeerConnection | null>(null);
+  const sendChannelRef = useRef<RTCDataChannel | null>(null);
+  const receiveChannelRef = useRef<RTCDataChannel | null>(null);
+  const signalingRef = useRef<BroadcastChannel>(
+    new BroadcastChannel(broadcastChannelName)
+  );
 
   useEffect(() => {
-    signaling.onmessage = (e) => {
+    signalingRef.current.onmessage = (e) => {
       switch (e.data.type) {
         case "offer":
-          console.log("offer");
           handleOffer(e.data);
           break;
         case "answer":
-          console.log("answer");
           handleAnswer(e.data);
           break;
         case "candidate":
-          console.log("candidate");
           handleCandidate(e.data);
           break;
         case "ready":
-          console.log("ready");
-          // A second tab joined. This tab will enable the start button unless in a call already.
-          if (pc) {
+          if (pcRef.current) {
             console.log("already in call, ignoring");
             return;
           }
-          //startButton.disabled = false;
           break;
         case "bye":
-          console.log("bye");
-          if (pc) {
+          if (pcRef.current) {
             hangup();
           }
           break;
@@ -52,142 +45,135 @@ export function useWebRTC<S>(
           break;
       }
     };
-    signaling.postMessage({ type: "ready" });
+    signalingRef.current.postMessage({ type: "ready" });
   }, []);
 
-  async function startConnection() {
-    pc = createPeerConnection();
-    sendChannel = pc.createDataChannel("sendDataChannel");
-    sendChannel.onopen = onSendChannelStateChange;
-    sendChannel.onmessage = onSendChannelMessageCallback;
-    sendChannel.onclose = onSendChannelStateChange;
+  const startConnection = async () => {
+    pcRef.current = createPeerConnection();
+    sendChannelRef.current = pcRef.current.createDataChannel("sendDataChannel");
+    sendChannelRef.current.onopen = onSendChannelStateChange;
+    sendChannelRef.current.onmessage = onSendChannelMessageCallback;
+    sendChannelRef.current.onclose = onSendChannelStateChange;
 
-    const offer = await pc.createOffer();
-    signaling.postMessage({ type: "offer", sdp: offer.sdp });
-    await pc.setLocalDescription(offer);
-  }
-
-  const sendData = (data: S) => {
-    if (sendChannel) {
-      sendChannel.send(JSON.stringify(data)); // HACK
-    } else {
-      receiveChannel?.send(JSON.stringify(data));
-    }
-    console.log("Sent Data");
-    console.log(
-      new Date().getTime() - (data as RenderParamsWithDate).time,
-      " ms"
-    );
+    const offer = await pcRef.current.createOffer();
+    signalingRef.current.postMessage({ type: "offer", sdp: offer.sdp });
+    await pcRef.current.setLocalDescription(offer);
   };
 
-  async function handleOffer(offer: any) {
-    if (pc) {
+  const sendData = (data: S) => {
+    if (sendChannelRef.current) {
+      sendChannelRef.current.send(JSON.stringify(data));
+    } else {
+      receiveChannelRef.current?.send(JSON.stringify(data));
+    }
+  };
+
+  const handleOffer = async (offer: any) => {
+    if (pcRef.current) {
       console.error("existing peerconnection");
       return;
     }
-    pc = createPeerConnection();
-    pc.ondatachannel = receiveChannelCallback;
-    await pc.setRemoteDescription(offer);
+    pcRef.current = createPeerConnection();
+    pcRef.current.ondatachannel = receiveChannelCallback;
+    await pcRef.current.setRemoteDescription(offer);
 
-    const answer = await pc.createAnswer();
-    signaling.postMessage({ type: "answer", sdp: answer.sdp });
-    await pc.setLocalDescription(answer);
-  }
+    const answer = await pcRef.current.createAnswer();
+    signalingRef.current.postMessage({ type: "answer", sdp: answer.sdp });
+    await pcRef.current.setLocalDescription(answer);
+  };
 
-  function receiveChannelCallback(event: any) {
-    console.log("Receive Channel Callback");
-    receiveChannel = event.channel;
-    if (!receiveChannel) {
+  const receiveChannelCallback = (event: any) => {
+    receiveChannelRef.current = event.channel;
+    if (!receiveChannelRef.current) {
       console.log("no receiveCannel");
       return;
     }
-    receiveChannel.onmessage = onReceiveChannelMessageCallback;
-    receiveChannel.onopen = onReceiveChannelStateChange;
-    receiveChannel.onclose = onReceiveChannelStateChange;
-  }
+    receiveChannelRef.current.onmessage = onReceiveChannelMessageCallback;
+    receiveChannelRef.current.onopen = onReceiveChannelStateChange;
+    receiveChannelRef.current.onclose = onReceiveChannelStateChange;
+  };
 
-  function onReceiveChannelMessageCallback(event: any) {
-    console.log("Received Data Rec");
-    const data = JSON.parse(event.data);
-    console.log(
-      new Date().getTime() - (data as RenderParamsWithDate).time,
-      " ms"
-    );
+  const onReceiveChannelMessageCallback = (event: any) => {
+    const data = JSON.parse(event.data) as S;
     onReceiveData?.(data);
-  }
+  };
 
-  function onSendChannelMessageCallback(event: any) {
-    console.log("Received Data Send");
-    onReceiveData?.(JSON.parse(event.data));
-  }
+  const onSendChannelMessageCallback = (event: any) => {
+    const data = JSON.parse(event.data) as S;
+    onReceiveData?.(data);
+  };
 
-  /////// PASTED CODE End
+  const onSendChannelStateChange = () => {
+    const readyState = sendChannelRef.current?.readyState;
+    console.log(`Send channel state is: ${readyState}`);
+    if (readyState === "closed") {
+      closeConnection();
+    }
+  };
+
+  const onReceiveChannelStateChange = () => {
+    const readyState = receiveChannelRef.current?.readyState;
+    console.log(`Receive channel state is: ${readyState}`);
+    if (readyState === "closed") {
+      closeConnection();
+    }
+  };
+
+  const closeConnection = () => {
+    hangup();
+    signalingRef.current.postMessage({ type: "bye" });
+  };
+
+  const hangup = () => {
+    if (pcRef.current) {
+      pcRef.current.close();
+      pcRef.current = null;
+    }
+    sendChannelRef.current = null;
+    receiveChannelRef.current = null;
+    console.log("Closed peer connections");
+  };
+
+  const createPeerConnection = () => {
+    const newPc = new RTCPeerConnection();
+    newPc.onicecandidate = (e) => {
+      const message: {
+        type: string;
+        candidate?: string;
+        sdpMid?: string | null;
+        sdpMLineIndex?: number | null;
+      } = {
+        type: "candidate",
+      };
+      if (e.candidate) {
+        message.candidate = e.candidate.candidate;
+        message.sdpMid = e.candidate.sdpMid;
+        message.sdpMLineIndex = e.candidate.sdpMLineIndex;
+      }
+      signalingRef.current.postMessage(message);
+    };
+    return newPc;
+  };
+
+  const handleAnswer = async (answer: any) => {
+    if (!pcRef.current) {
+      console.error("no peerconnection");
+      return;
+    }
+    await pcRef.current.setRemoteDescription(answer);
+  };
+
+  const handleCandidate = async (candidate: any) => {
+    if (!pcRef.current) {
+      console.error("no peerconnection");
+      return;
+    }
+    if (!candidate.candidate) {
+      await pcRef.current.addIceCandidate(undefined);
+    } else {
+      await pcRef.current.addIceCandidate(candidate);
+    }
+  };
 
   return { sendData, startConnection, closeConnection };
-}
-
-function onSendChannelStateChange() {
-  const readyState = sendChannel?.readyState;
-  console.log("Send channel state is: " + readyState);
-}
-
-function onReceiveChannelStateChange() {
-  const readyState = receiveChannel?.readyState;
-  console.log(`Receive channel state is: ${readyState}`);
-}
-
-const closeConnection = () => {
-  hangup();
-  signaling.postMessage({ type: "bye" });
-};
-
-async function hangup() {
-  if (pc) {
-    pc.close();
-    pc = undefined;
-  }
-  sendChannel = undefined;
-  receiveChannel = undefined;
-  console.log("Closed peer connections");
-}
-
-function createPeerConnection() {
-  const newPc = new RTCPeerConnection();
-  newPc.onicecandidate = (e) => {
-    const message: {
-      type: string;
-      candidate?: string;
-      sdpMid?: string | null;
-      sdpMLineIndex?: number | null;
-    } = {
-      type: "candidate",
-    };
-    if (e.candidate) {
-      message.candidate = e.candidate.candidate;
-      message.sdpMid = e.candidate.sdpMid;
-      message.sdpMLineIndex = e.candidate.sdpMLineIndex;
-    }
-    signaling.postMessage(message);
-  };
-  return newPc;
-}
-
-async function handleAnswer(answer: any) {
-  if (!pc) {
-    console.error("no peerconnection");
-    return;
-  }
-  await pc.setRemoteDescription(answer);
-}
-
-async function handleCandidate(candidate: any) {
-  if (!pc) {
-    console.error("no peerconnection");
-    return;
-  }
-  if (!candidate.candidate) {
-    await pc.addIceCandidate(undefined);
-  } else {
-    await pc.addIceCandidate(candidate);
-  }
 }
