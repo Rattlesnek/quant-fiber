@@ -14,12 +14,8 @@ export const ShaderPlane = (): JSX.Element => {
   useFrame(() => {
     if (!shaderMaterialRef.current) return;
 
-    const domainX = getRenderParams().domainX;
-
-    shaderMaterialRef.current.uniforms.xDomain.value = [
-      domainX.min,
-      domainX.max,
-    ];
+    shaderMaterialRef.current.uniforms.xDomain.value =
+      getRenderParams().xDomain;
   });
 
   return (

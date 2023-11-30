@@ -8,10 +8,36 @@ export const Controls: React.FC = () => {
   const [visualWindow, setVisualWindow] = useState<Window | null>(null);
   const { renderParams, setRenderParams } = useRenderParamsState();
 
-  const { sendData, startConnection } =
+  const { sendData, startConnection, closeConnection } =
     useWebRTC<RenderParamsWithDate>("webrtc");
 
-  const isVisualWindowOpen = () => !!visualWindow && !visualWindow.closed;
+  const isVisualWindowOpen = (): boolean =>
+    !!visualWindow && !visualWindow.closed;
+  const openVisualWindow = (): void => {
+    if (isVisualWindowOpen()) {
+      return;
+    }
+
+    const newVisualWindow = window.open("/visual");
+    if (!newVisualWindow) {
+      return;
+    }
+
+    newVisualWindow.onload = () => {
+      // New visual window is fully loaded
+      startConnection();
+
+      // Add event only after load was completed
+      newVisualWindow.onunload = () => {
+        console.log("unloading");
+        // Visual window is being unloaded
+        closeConnection();
+        setVisualWindow(null);
+      };
+    };
+
+    setVisualWindow(newVisualWindow);
+  };
 
   return (
     <>
@@ -28,13 +54,13 @@ export const Controls: React.FC = () => {
             min={-200}
             max={200}
             step={0.001}
-            value={[renderParams.domainX.min, renderParams.domainX.max]}
+            value={renderParams.xDomain}
             onChange={(_, value: number | number[]) => {
               if (!Array.isArray(value)) return;
 
-              const newParams = {
+              const newParams: RenderParamsWithDate = {
                 ...renderParams,
-                domainX: { min: value[0], max: value[1] },
+                xDomain: value,
                 time: new Date().getTime(),
               };
 
@@ -47,20 +73,7 @@ export const Controls: React.FC = () => {
           <Button
             variant="contained"
             disabled={isVisualWindowOpen()}
-            onClick={() => {
-              if (isVisualWindowOpen()) {
-                return;
-              }
-
-              const newVisualWindow = window.open("/visual");
-              if (newVisualWindow) {
-                newVisualWindow.addEventListener("load", () => {
-                  // New visual window was fully loaded
-                  startConnection();
-                });
-                setVisualWindow(newVisualWindow);
-              }
-            }}
+            onClick={openVisualWindow}
           >
             Open
           </Button>
