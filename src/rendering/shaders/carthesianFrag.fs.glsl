@@ -156,10 +156,10 @@ void main()
     
     // Colors
     vec4 colors[COLORS_SIZE] = vec4[](
-        vec4(0.0, 0.0, 0.0, 0.0),
+        vec4(1.0, 1.0, 1.0, 0.0),
         vec4(0.78, 0.16, 0.11, 0.34),
         vec4(0.89, 0.48, 0.21, 0.63),
-        vec4(0.0, 0.0, 0.0, 1.0)
+        vec4(1.0, 1.0, 1.0, 1.0)
     );
     
     // uv - normalized pixel coordinates (from 0 to 1)

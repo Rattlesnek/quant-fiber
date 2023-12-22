@@ -2,7 +2,7 @@ import { useFrame } from "@react-three/fiber";
 import { basicVertex, carthesianFrag } from "../shaders";
 import { ShaderMaterial } from "three";
 import { useRef } from "react";
-import { useRenderParamsState } from "../state/renderParamsState";
+import { useRenderParamsState } from "../../state/renderParamsState";
 
 export const ShaderPlane = (): JSX.Element => {
   const shaderMaterialRef = useRef<ShaderMaterial>(null);
@@ -20,7 +20,7 @@ export const ShaderPlane = (): JSX.Element => {
 
   return (
     <mesh position={[0, 0, -10]}>
-      <planeGeometry args={[20, 20]} />
+      <planeGeometry args={[100, 100]} />
       <shaderMaterial
         ref={shaderMaterialRef}
         vertexShader={basicVertex}

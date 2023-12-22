@@ -1,10 +1,11 @@
-import { Button, Grid, Slider } from "@mui/material";
-import { useWebRTC } from "./tabCommunication/useWebRTC";
-import { RenderParamsWithDate } from "./types";
-import { useRenderParamsState } from "./state/renderParamsState";
+import { Button, Grid } from "@mui/material";
+import { useWebRTC } from "../tabCommunication/useWebRTC";
+import { RenderParamsWithDate } from "../rendering/types";
+import { useRenderParamsState } from "../state/renderParamsState";
 import { useState } from "react";
+import { RangeSlider } from "./RangeSlider";
 
-export const Controls: React.FC = () => {
+export const RenderControls: React.FC = () => {
   const [visualWindow, setVisualWindow] = useState<Window | null>(null);
   const { renderParams, setRenderParams } = useRenderParamsState();
 
@@ -49,15 +50,9 @@ export const Controls: React.FC = () => {
         paddingTop={1}
         paddingBottom={1}
       >
-        <Grid item xs={8}>
-          <Slider
-            min={-200}
-            max={200}
-            step={0.001}
-            value={renderParams.xDomain}
-            onChange={(_, value: number | number[]) => {
-              if (!Array.isArray(value)) return;
-
+        <Grid item xs={10}>
+          <RangeSlider
+            onValueChange={(value) => {
               const newParams: RenderParamsWithDate = {
                 ...renderParams,
                 xDomain: value,

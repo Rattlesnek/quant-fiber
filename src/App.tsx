@@ -1,14 +1,16 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Visual } from "./Visual";
-import { Home } from "./Home";
+import { VisualView } from "./pages/VisualView";
+import { HomeView } from "./pages/HomeView";
+import { TestingView } from "./pages/TestingView";
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/visual" element={<Visual />} />
+        <Route path="/" element={<HomeView />} />
+        <Route path="/visual" element={<VisualView />} />
+        <Route path="/testing" element={<TestingView />} />
       </Routes>
     </BrowserRouter>
   );

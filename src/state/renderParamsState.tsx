@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { RenderParamsWithDate, defaultRenderParams } from "../types";
+import { RenderParamsWithDate, defaultRenderParams } from "../rendering/types";
 
 export type RenderParamsState = {
   renderParams: RenderParamsWithDate;
