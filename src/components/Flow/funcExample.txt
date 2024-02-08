@@ -1,0 +1,7 @@
+
+
+float basicMath_1 = xPos + yPos
+float periodicFunc_1 = sin(basicMath_1)
+float basicMath_2 = xPos + periodicFunc_1;
+float outputFunc = basicMath_2;
+return outputFunc;
