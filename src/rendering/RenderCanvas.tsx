@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
 import { css } from "@emotion/css";
 import { ShaderPlane } from "./objects/ShaderPlane";
+import { carthesianFrag, carthesianFragNoFunc } from "./shaders";
+import { useShaderFuncState } from "../state/shaderFuncState";
 
 interface RenderCanvasProps {}
 

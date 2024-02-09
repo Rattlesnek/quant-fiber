@@ -1,8 +1,9 @@
 import { useFrame } from "@react-three/fiber";
-import { basicVertex, carthesianFrag } from "../shaders";
+import { basicVertex, carthesianFrag, carthesianFragNoFunc } from "../shaders";
 import { ShaderMaterial } from "three";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useRenderParamsState } from "../../state/renderParamsState";
+import { useShaderFuncState } from "../../state/shaderFuncState";
 
 export const ShaderPlane = (): JSX.Element => {
   const shaderMaterialRef = useRef<ShaderMaterial>(null);
@@ -10,6 +11,18 @@ export const ShaderPlane = (): JSX.Element => {
   const getRenderParams = useRenderParamsState(
     (state) => state.getRenderParams
   );
+
+  const { shaderFunc } = useShaderFuncState();
+
+  useEffect(() => {
+    if (!shaderMaterialRef.current) return;
+
+    console.log("newFunc");
+
+    const fragmentShaderSrc = `${shaderFunc.func}\n${carthesianFragNoFunc}`;
+    shaderMaterialRef.current.fragmentShader = fragmentShaderSrc;
+    shaderMaterialRef.current.needsUpdate = true;
+  }, [shaderFunc]);
 
   useFrame(() => {
     if (!shaderMaterialRef.current) return;

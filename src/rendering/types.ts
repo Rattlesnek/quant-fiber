@@ -1,3 +1,13 @@
+export type ShaderFunc = {
+  id: number;
+  func: string;
+};
+
+export const defaultShaderFunc: ShaderFunc = {
+  id: 0,
+  func: "",
+};
+
 export type RenderParams = {
   speed: number;
   xDomain: Array<number>;
@@ -9,9 +19,7 @@ export type RenderParams = {
   reverse: boolean;
 };
 
-export type RenderParamsWithDate = RenderParams & { time: number };
-
-export const defaultRenderParams: RenderParamsWithDate = {
+export const defaultRenderParams: RenderParams = {
   speed: 1.0,
   xDomain: [-10, 10],
   yDomain: [-10, 10],
@@ -19,5 +27,4 @@ export const defaultRenderParams: RenderParamsWithDate = {
   circleInvRad: 1.0,
   stop: false,
   reverse: false,
-  time: 0,
 };

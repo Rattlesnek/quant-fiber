@@ -1,5 +1,5 @@
-import { TestingFlow } from "../components/Flow/TestingFlow";
+import { FunctionFlow } from "../components/Flow/FunctionFlow";
 
 export const TestingView: React.FC = () => {
-  return <TestingFlow />;
+  return <FunctionFlow />;
 };

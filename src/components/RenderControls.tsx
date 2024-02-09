@@ -1,16 +1,16 @@
 import { Button, Grid } from "@mui/material";
 import { useWebRTC } from "../tabCommunication/useWebRTC";
-import { RenderParamsWithDate } from "../rendering/types";
 import { useRenderParamsState } from "../state/renderParamsState";
 import { useState } from "react";
 import { RangeSlider } from "./RangeSlider";
+import { RenderParams } from "../rendering/types";
 
 export const RenderControls: React.FC = () => {
   const [visualWindow, setVisualWindow] = useState<Window | null>(null);
   const { renderParams, setRenderParams } = useRenderParamsState();
 
   const { sendData, startConnection, closeConnection } =
-    useWebRTC<RenderParamsWithDate>("webrtc");
+    useWebRTC<RenderParams>("webrtc");
 
   const isVisualWindowOpen = (): boolean =>
     !!visualWindow && !visualWindow.closed;
@@ -53,10 +53,9 @@ export const RenderControls: React.FC = () => {
         <Grid item xs={10}>
           <RangeSlider
             onValueChange={(value) => {
-              const newParams: RenderParamsWithDate = {
+              const newParams: RenderParams = {
                 ...renderParams,
                 xDomain: value,
-                time: new Date().getTime(),
               };
 
               sendData(newParams);

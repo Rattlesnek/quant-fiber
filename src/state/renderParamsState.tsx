@@ -1,10 +1,10 @@
 import { create } from "zustand";
-import { RenderParamsWithDate, defaultRenderParams } from "../rendering/types";
+import { RenderParams, defaultRenderParams } from "../rendering/types";
 
 export type RenderParamsState = {
-  renderParams: RenderParamsWithDate;
-  getRenderParams: () => RenderParamsWithDate;
-  setRenderParams: (renderParams: RenderParamsWithDate) => void;
+  renderParams: RenderParams;
+  getRenderParams: () => RenderParams;
+  setRenderParams: (renderParams: RenderParams) => void;
 };
 
 export const useRenderParamsState = create<RenderParamsState>((set, get) => ({

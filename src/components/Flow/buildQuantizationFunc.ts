@@ -3,15 +3,18 @@ import { NodeType } from "./Nodes/types";
 
 type FuncResult = {
   result: string;
-  success: boolean;
+  isValid: boolean;
 };
 
 const invalidResult: FuncResult = {
   result: "||NULL||",
-  success: false,
+  isValid: false,
 };
 
-const validResult = (result: string) => ({ result: result, success: true });
+const validResult = (result: string): FuncResult => ({
+  result: result,
+  isValid: true,
+});
 
 const getInputParam = (currentNode: Node, currentEdge: Edge): string | null => {
   if (currentNode.type !== NodeType.inputPosition) {
@@ -33,13 +36,13 @@ const getOutputFunc = (
 
   const inputParam = getInputParam(inNode, inEdge);
   if (inputParam !== null) {
-    return validResult(`return ${inputParam};\n`);
+    return validResult(`    return ${inputParam};\n`);
   }
 
   const previousResult = getQuantFunc(nodes, edges, inNode);
 
-  const result = `${previousResult.result}return ${inEdge.source};\n`;
-  return { result, success: previousResult.success };
+  const result = `${previousResult.result}    return ${inEdge.source};\n`;
+  return { result, isValid: previousResult.isValid };
 };
 
 const getBasicMath = (
@@ -67,13 +70,13 @@ const getBasicMath = (
     previousResults.push(previousResult);
   });
 
-  const result = `${previousResults.map((r) => r.result).join()}float ${
+  const result = `${previousResults.map((r) => r.result).join()}    float ${
     currentNode.id
   } = ${operationArgs.join(" + ")};\n`;
 
   return {
     result,
-    success: previousResults.reduce((prev, curr) => prev && curr.success, true),
+    isValid: previousResults.reduce((prev, curr) => prev && curr.isValid, true),
   };
 };
 
@@ -90,13 +93,13 @@ const getPeriodicFunc = (
 
   const inputParam = getInputParam(inNode, inEdge);
   if (inputParam !== null) {
-    return validResult(`float ${currentNode.id} = sin(${inputParam});\n`);
+    return validResult(`    float ${currentNode.id} = sin(${inputParam});\n`);
   }
 
   const previousResult = getQuantFunc(nodes, edges, inNode);
 
-  const result = `${previousResult.result}float ${currentNode.id} = sin(${inEdge.source});\n`;
-  return { result, success: previousResult.success };
+  const result = `${previousResult.result}    float ${currentNode.id} = sin(${inEdge.source});\n`;
+  return { result, isValid: previousResult.isValid };
 };
 
 const getQuantFunc = (
@@ -121,7 +124,7 @@ const getQuantFunc = (
   return invalidResult;
 };
 
-export const getQuantizationFunc = (
+export const buildQuantizationFunc = (
   nodes: Node[],
   edges: Edge[]
 ): FuncResult => {
@@ -132,6 +135,6 @@ export const getQuantizationFunc = (
 
   return {
     result: functionWrapped,
-    success: functionContent.success,
+    isValid: functionContent.isValid,
   };
 };

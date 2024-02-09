@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -13,24 +13,40 @@ import ReactFlow, {
   Edge,
   SelectionMode,
   OnEdgeUpdateFunc,
-  updateEdge,
 } from "reactflow";
 import { initialEdges, initialNodes } from "./flowDefinitions";
 import { css } from "@emotion/css";
 import "reactflow/dist/style.css";
-import { getQuantizationFunc } from "./getQuantizationFunc";
+import { buildQuantizationFunc } from "./buildQuantizationFunc";
 import { NodeType, nodeTypes } from "./Nodes/types";
 import { FlowPanel } from "./FlowPanel";
+import { useShaderFuncState } from "../../state/shaderFuncState";
 
-export const TestingFlow: React.FC = () => {
+export const FunctionFlow: React.FC = () => {
   const [nodeCnt, setNodeCnt] = useState(initialNodes.length);
   const [edgeCnt, setEdgeCnt] = useState(initialEdges.length);
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  const [shouldBuildFunc, setShouldBuildFunc] = useState(true);
 
-  const func = getQuantizationFunc(nodes, edges);
-  console.log(func.result);
-  console.log(func.success);
+  const { setShaderFunc } = useShaderFuncState();
+
+  useEffect(() => {
+    if (!shouldBuildFunc) {
+      return;
+    }
+
+    const { result: func, isValid } = buildQuantizationFunc(nodes, edges);
+
+    console.log(func);
+    console.log(isValid);
+
+    if (isValid) {
+      setShaderFunc(func);
+    }
+
+    setShouldBuildFunc(false);
+  }, [nodes, edges]);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -40,6 +56,7 @@ export const TestingFlow: React.FC = () => {
     (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     [setEdges]
   );
+
   const onConnect: OnConnect = ({
     source,
     sourceHandle,
@@ -54,9 +71,7 @@ export const TestingFlow: React.FC = () => {
     setEdges((prev) => {
       // No duplicate edges.
       const noDuplicateEdges = prev.filter(
-        (edge) =>
-          (edge.source !== source || edge.sourceHandle !== sourceHandle) &&
-          (edge.target !== target || edge.targetHandle !== targetHandle)
+        (edge) => edge.target !== target || edge.targetHandle !== targetHandle
       );
 
       return [
@@ -71,6 +86,7 @@ export const TestingFlow: React.FC = () => {
       ];
     });
     setEdgeCnt((prev) => prev + 1);
+    setShouldBuildFunc(true);
   };
 
   const edgeUpdateSuccessful = useRef(true);
@@ -82,7 +98,25 @@ export const TestingFlow: React.FC = () => {
   const onEdgeUpdate: OnEdgeUpdateFunc = useCallback(
     (oldEdge, newConnection) => {
       edgeUpdateSuccessful.current = true;
-      setEdges((els) => updateEdge(oldEdge, newConnection, els));
+      setEdges((prev) => {
+        // No duplicate edges.
+        const noDuplicateEdges = prev.filter(
+          (edge) =>
+            (edge.target !== newConnection.target ||
+              edge.targetHandle !== newConnection.targetHandle) &&
+            edge.id !== oldEdge.id
+        );
+        return [
+          ...noDuplicateEdges,
+          {
+            id: oldEdge.id,
+            source: newConnection.source ?? "",
+            sourceHandle: newConnection.sourceHandle ?? "",
+            target: newConnection.target ?? "",
+            targetHandle: newConnection.targetHandle ?? "",
+          },
+        ];
+      });
     },
     [edgeUpdateSuccessful]
   );
@@ -94,6 +128,7 @@ export const TestingFlow: React.FC = () => {
       }
 
       edgeUpdateSuccessful.current = true;
+      setShouldBuildFunc(true);
     },
     [edgeUpdateSuccessful]
   );
