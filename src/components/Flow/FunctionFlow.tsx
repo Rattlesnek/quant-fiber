@@ -159,10 +159,6 @@ export const FunctionFlow: React.FC = () => {
         onEdgeUpdateStart={onEdgeUpdateStart}
         onEdgeUpdateEnd={onEdgeUpdateEnd}
         fitView
-        panOnScroll
-        selectionOnDrag
-        panOnDrag={[1, 2]}
-        selectionMode={SelectionMode.Partial}
       >
         <FlowPanel addNode={addNode} />
         <Controls />
