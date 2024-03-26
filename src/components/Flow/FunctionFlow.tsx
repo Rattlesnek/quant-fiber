@@ -11,16 +11,16 @@ import ReactFlow, {
   applyNodeChanges,
   Node,
   Edge,
-  SelectionMode,
   OnEdgeUpdateFunc,
 } from "reactflow";
 import { initialEdges, initialNodes } from "./flowDefinitions";
 import { css } from "@emotion/css";
 import "reactflow/dist/style.css";
 import { buildQuantizationFunc } from "./buildQuantizationFunc";
-import { NodeType, nodeTypes } from "./Nodes/types";
+import { NodeObject, NodeType, nodeTypes } from "./Nodes/types";
 import { FlowPanel } from "./FlowPanel";
 import { useShaderFuncState } from "../../state/shaderFuncState";
+import { BasicMathOp } from "./Nodes/BasicMathNode";
 
 export const FunctionFlow: React.FC = () => {
   const [nodeCnt, setNodeCnt] = useState(initialNodes.length);
@@ -167,6 +167,37 @@ export const FunctionFlow: React.FC = () => {
       </ReactFlow>
     </div>
   );
+};
+
+const getDefaultNodeObjectBasedOnNodeType = (
+  nodeType: NodeType,
+  nodeId: number,
+  position: { x: number; y: number }
+): NodeObject => {
+  switch (nodeType) {
+    case NodeType.inputPosition:
+    case NodeType.outputFunc:
+      return {
+        id: `${nodeType}_${nodeId}`,
+        type: nodeType,
+        data: {},
+        position,
+      };
+    case NodeType.basicMath:
+      return {
+        id: `${nodeType}_${nodeId}`,
+        type: nodeType,
+        data: { operation: BasicMathOp.Add },
+        position,
+      };
+    case NodeType.periodicFunc:
+      return {
+        id: `${nodeType}_${nodeId}`,
+        type: nodeType,
+        data: { operation: "asd" },
+        position,
+      };
+  }
 };
 
 const styles = {

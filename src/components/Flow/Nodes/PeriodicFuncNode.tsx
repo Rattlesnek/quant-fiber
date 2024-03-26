@@ -1,7 +1,13 @@
 import { Handle, NodeProps, Position } from "reactflow";
 import { nodeStyles } from "./nodeStyles";
 
-export const PeriodicFuncNode: React.FC<NodeProps> = () => {
+export type PeriodicFuncNodeData = {
+  operation: string;
+};
+
+export const PeriodicFuncNode: React.FC<NodeProps<PeriodicFuncNodeData>> = ({
+  data,
+}) => {
   return (
     <div className={nodeStyles.node}>
       Periodic

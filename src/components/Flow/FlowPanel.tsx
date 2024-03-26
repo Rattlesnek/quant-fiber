@@ -2,7 +2,7 @@ import { Button } from "@mui/material";
 import { useState } from "react";
 import { Panel } from "reactflow";
 import { AddNodeDialog } from "./Dialogs/AddNodeDialog";
-import { NodeType, nodeTypes } from "./Nodes/types";
+import { NodeType } from "./Nodes/types";
 
 interface FlowPanelProps {
   addNode: (nodeType: NodeType) => void;

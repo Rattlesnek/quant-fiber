@@ -1,26 +1,43 @@
-import { Handle, NodeProps, Position } from "reactflow";
+import { Handle, NodeProps, Position, useViewport } from "reactflow";
 import { nodeStyles } from "./nodeStyles";
-import { Grid, MenuItem, Select } from "@mui/material";
+import { MenuItem, Select } from "@mui/material";
 import { useState } from "react";
 import { css } from "@emotion/css";
 
-enum BasicMathOp {
+export enum BasicMathOp {
   Add = "Add",
   Sub = "Sub",
   Mul = "Mul",
   Div = "Div",
 }
 
-export const BasicMathNode: React.FC<NodeProps> = () => {
+export type BasicMathNodeData = {
+  operation: BasicMathOp;
+};
+
+export const BasicMathNode: React.FC<NodeProps<BasicMathNodeData>> = ({
+  data,
+}) => {
   const [operation, setOperation] = useState<BasicMathOp>(BasicMathOp.Add);
+
+  const { zoom } = useViewport();
 
   return (
     <div className={nodeStyles.node}>
       <div className={styles.nodeContent}>
         <Select
+          className="nodrag"
+          size="small"
           value={operation}
           onChange={(e) => {
             setOperation(e.target.value as BasicMathOp);
+          }}
+          MenuProps={{
+            PaperProps: {
+              sx: {
+                transform: `scale(${zoom}) !important`,
+              },
+            },
           }}
         >
           <MenuItem value={BasicMathOp.Add}>Add</MenuItem>
@@ -47,8 +64,5 @@ export const BasicMathNode: React.FC<NodeProps> = () => {
 };
 
 const styles = {
-  nodeContent: css`
-    width: 30px;
-    height: 20 px;
-  `,
+  nodeContent: css``,
 };

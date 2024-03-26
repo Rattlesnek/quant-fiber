@@ -1,39 +1,47 @@
-import { Node, Edge } from "reactflow";
+import { Edge } from "reactflow";
+import { NodeObject, NodeType } from "./Nodes/types";
+import { BasicMathOp } from "./Nodes/BasicMathNode";
 
-export const initialNodes: Node[] = [
+export const initialNodes: NodeObject[] = [
   {
     id: "inputPosition_1",
-    type: "inputPosition",
+    type: NodeType.inputPosition,
     data: {},
     position: { x: 0, y: 0 },
   },
   {
     id: "basicMath_1",
-    type: "basicMath",
-    data: {},
+    type: NodeType.basicMath,
+    data: {
+      operation: BasicMathOp.Add,
+    },
     position: { x: 100, y: 0 },
   },
   {
     id: "periodicFunc_1",
-    type: "periodicFunc",
-    data: {},
+    type: NodeType.periodicFunc,
+    data: {
+      operation: "asd",
+    },
     position: { x: 200, y: 0 },
   },
   {
     id: "inputPosition_2",
-    type: "inputPosition",
+    type: NodeType.inputPosition,
     data: {},
     position: { x: 200, y: -50 },
   },
   {
     id: "basicMath_2",
-    type: "basicMath",
-    data: {},
+    type: NodeType.basicMath,
+    data: {
+      operation: BasicMathOp.Mul,
+    },
     position: { x: 300, y: 0 },
   },
   {
     id: "outputFunc",
-    type: "outputFunc",
+    type: NodeType.outputFunc,
     data: {},
     position: { x: 400, y: 0 },
   },
