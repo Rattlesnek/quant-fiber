@@ -1,8 +1,24 @@
-import { Node, NodeProps } from "reactflow";
-import { BasicMathNode, BasicMathNodeData } from "./BasicMathNode";
-import { InputPositionNode, InputPositionNodeData } from "./InputPositionNode";
-import { OutputFuncNode, OutputFuncNodeData } from "./OutputFuncNode";
-import { PeriodicFuncNode, PeriodicFuncNodeData } from "./PeriodicFuncNode";
+import { NodeProps } from "reactflow";
+import {
+  BasicMathNode,
+  BasicMathNodeData,
+  BasicMathNodeObject,
+} from "./BasicMathNode";
+import {
+  InputPositionNode,
+  InputPositionNodeData,
+  InputPositionNodeObject,
+} from "./InputPositionNode";
+import {
+  OutputFuncNode,
+  OutputFuncNodeData,
+  OutputFuncNodeObject,
+} from "./OutputFuncNode";
+import {
+  PeriodicFuncNode,
+  PeriodicFuncNodeData,
+  PeriodicFuncNodeObject,
+} from "./PeriodicFuncNode";
 
 export enum NodeType {
   inputPosition = "inputPosition",
@@ -19,7 +35,19 @@ export const nodeTypes: Record<NodeType, React.FC<NodeProps>> = {
 };
 
 export type NodeObject =
-  | Node<BasicMathNodeData, NodeType.basicMath>
-  | Node<InputPositionNodeData, NodeType.inputPosition>
-  | Node<OutputFuncNodeData, NodeType.outputFunc>
-  | Node<PeriodicFuncNodeData, NodeType.periodicFunc>;
+  | InputPositionNodeObject
+  | OutputFuncNodeObject
+  | BasicMathNodeObject
+  | PeriodicFuncNodeObject;
+
+export type NodeData =
+  | InputPositionNodeData
+  | OutputFuncNodeData
+  | BasicMathNodeData
+  | PeriodicFuncNodeData;
+
+export type OnNodeDataChange = (nodeId: string, nodeData: NodeData) => void;
+
+export type BaseNodeData = {
+  onNodeDataChange: OnNodeDataChange;
+};

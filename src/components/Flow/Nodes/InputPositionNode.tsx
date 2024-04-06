@@ -1,9 +1,17 @@
-import { Handle, NodeProps, Position } from "reactflow";
+import { Handle, Node, NodeProps, Position } from "reactflow";
 import { nodeStyles } from "./nodeStyles";
+import { NodeType } from "./types";
 
 export type InputPositionNodeData = {};
 
-export const InputPositionNode: React.FC<NodeProps> = () => {
+export type InputPositionNodeObject = Node<
+  InputPositionNodeData,
+  NodeType.inputPosition
+>;
+
+export const InputPositionNode: React.FC<
+  NodeProps<InputPositionNodeData>
+> = () => {
   return (
     <div className={nodeStyles.node}>
       Input

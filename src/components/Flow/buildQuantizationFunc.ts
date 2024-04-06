@@ -1,5 +1,8 @@
 import { Node, Edge } from "reactflow";
-import { NodeType } from "./Nodes/types";
+import { NodeObject, NodeType } from "./Nodes/types";
+import { BasicMathNodeObject, BasicMathOp } from "./Nodes/BasicMathNode";
+import { OutputFuncNodeObject } from "./Nodes/OutputFuncNode";
+import { PeriodicFuncNodeObject } from "./Nodes/PeriodicFuncNode";
 
 type FuncResult = {
   result: string;
@@ -24,9 +27,9 @@ const getInputParam = (currentNode: Node, currentEdge: Edge): string | null => {
 };
 
 const getOutputFunc = (
-  nodes: Node[],
+  nodes: NodeObject[],
   edges: Edge[],
-  currentNode: Node
+  currentNode: OutputFuncNodeObject
 ): FuncResult => {
   const inEdge = edges.find((edge) => edge.target === currentNode.id);
   if (!inEdge) {
@@ -45,10 +48,17 @@ const getOutputFunc = (
   return { result, isValid: previousResult.isValid };
 };
 
+const basicMathOpMapping: Record<BasicMathOp, string> = {
+  [BasicMathOp.Add]: "+",
+  [BasicMathOp.Sub]: "-",
+  [BasicMathOp.Mul]: "*",
+  [BasicMathOp.Div]: "/",
+};
+
 const getBasicMath = (
-  nodes: Node[],
+  nodes: NodeObject[],
   edges: Edge[],
-  currentNode: Node
+  currentNode: BasicMathNodeObject
 ): FuncResult => {
   const inEdges = edges.filter((edge) => edge.target === currentNode.id);
   if (inEdges.length === 0) {
@@ -70,9 +80,10 @@ const getBasicMath = (
     previousResults.push(previousResult);
   });
 
+  const { operation } = currentNode.data;
   const result = `${previousResults.map((r) => r.result).join()}    float ${
     currentNode.id
-  } = ${operationArgs.join(" + ")};\n`;
+  } = ${operationArgs.join(` ${basicMathOpMapping[operation]} `)};\n`;
 
   return {
     result,
@@ -81,9 +92,9 @@ const getBasicMath = (
 };
 
 const getPeriodicFunc = (
-  nodes: Node[],
+  nodes: NodeObject[],
   edges: Edge[],
-  currentNode: Node
+  currentNode: PeriodicFuncNodeObject
 ): FuncResult => {
   const inEdge = edges.find((edge) => edge.target === currentNode.id);
   if (!inEdge) {
@@ -103,9 +114,9 @@ const getPeriodicFunc = (
 };
 
 const getQuantFunc = (
-  nodes: Node[],
+  nodes: NodeObject[],
   edges: Edge[],
-  currentNode: Node
+  currentNode: NodeObject
 ): FuncResult => {
   switch (currentNode.type) {
     case NodeType.outputFunc:
@@ -125,7 +136,7 @@ const getQuantFunc = (
 };
 
 export const buildQuantizationFunc = (
-  nodes: Node[],
+  nodes: NodeObject[],
   edges: Edge[]
 ): FuncResult => {
   const outputNode = nodes.find((node) => node.type === NodeType.outputFunc)!;

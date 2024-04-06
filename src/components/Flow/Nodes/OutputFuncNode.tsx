@@ -1,9 +1,15 @@
-import { Handle, NodeProps, Position } from "reactflow";
+import { Handle, Node, NodeProps, Position } from "reactflow";
 import { nodeStyles } from "./nodeStyles";
+import { NodeType } from "./types";
 
 export type OutputFuncNodeData = {};
 
-export const OutputFuncNode: React.FC<NodeProps> = () => {
+export type OutputFuncNodeObject = Node<
+  OutputFuncNodeData,
+  NodeType.outputFunc
+>;
+
+export const OutputFuncNode: React.FC<NodeProps<OutputFuncNodeData>> = () => {
   return (
     <div className={nodeStyles.node}>
       Output

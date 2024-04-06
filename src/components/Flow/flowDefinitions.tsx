@@ -1,6 +1,44 @@
 import { Edge } from "reactflow";
-import { NodeObject, NodeType } from "./Nodes/types";
-import { BasicMathOp } from "./Nodes/BasicMathNode";
+import { NodeObject, NodeType, OnNodeDataChange } from "./Nodes/types";
+import { BasicMathNodeData, BasicMathOp } from "./Nodes/BasicMathNode";
+import { PeriodicFuncNodeData } from "./Nodes/PeriodicFuncNode";
+
+export const getDefaultNodeObjectBasedOnNodeType = ({
+  nodeId,
+  nodeType,
+  position,
+  onNodeDataChange,
+}: {
+  nodeType: NodeType;
+  nodeId: number;
+  position: { x: number; y: number };
+  onNodeDataChange: OnNodeDataChange;
+}): NodeObject => {
+  switch (nodeType) {
+    case NodeType.inputPosition:
+    case NodeType.outputFunc:
+      return {
+        id: `${nodeType}_${nodeId}`,
+        type: nodeType,
+        data: {},
+        position,
+      };
+    case NodeType.basicMath:
+      return {
+        id: `${nodeType}_${nodeId}`,
+        type: nodeType,
+        data: { operation: BasicMathOp.Add, onNodeDataChange },
+        position,
+      };
+    case NodeType.periodicFunc:
+      return {
+        id: `${nodeType}_${nodeId}`,
+        type: nodeType,
+        data: { operation: "", onNodeDataChange },
+        position,
+      };
+  }
+};
 
 export const initialNodes: NodeObject[] = [
   {
@@ -14,15 +52,15 @@ export const initialNodes: NodeObject[] = [
     type: NodeType.basicMath,
     data: {
       operation: BasicMathOp.Add,
-    },
+    } as BasicMathNodeData,
     position: { x: 100, y: 0 },
   },
   {
     id: "periodicFunc_1",
     type: NodeType.periodicFunc,
     data: {
-      operation: "asd",
-    },
+      operation: "",
+    } as PeriodicFuncNodeData,
     position: { x: 200, y: 0 },
   },
   {
@@ -36,7 +74,7 @@ export const initialNodes: NodeObject[] = [
     type: NodeType.basicMath,
     data: {
       operation: BasicMathOp.Mul,
-    },
+    } as BasicMathNodeData,
     position: { x: 300, y: 0 },
   },
   {

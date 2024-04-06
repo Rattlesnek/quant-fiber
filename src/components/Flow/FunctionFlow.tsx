@@ -13,16 +13,26 @@ import ReactFlow, {
   Edge,
   OnEdgeUpdateFunc,
 } from "reactflow";
-import { initialEdges, initialNodes } from "./flowDefinitions";
+import {
+  getDefaultNodeObjectBasedOnNodeType,
+  initialEdges,
+  initialNodes,
+} from "./flowDefinitions";
 import { css } from "@emotion/css";
 import "reactflow/dist/style.css";
 import { buildQuantizationFunc } from "./buildQuantizationFunc";
-import { NodeObject, NodeType, nodeTypes } from "./Nodes/types";
+import {
+  NodeObject,
+  NodeType,
+  OnNodeDataChange,
+  nodeTypes,
+} from "./Nodes/types";
 import { FlowPanel } from "./FlowPanel";
 import { useShaderFuncState } from "../../state/shaderFuncState";
-import { BasicMathOp } from "./Nodes/BasicMathNode";
 
-export const FunctionFlow: React.FC = () => {
+interface FunctionFlowProps {}
+
+export const FunctionFlow: React.FC<FunctionFlowProps> = () => {
   const [nodeCnt, setNodeCnt] = useState(initialNodes.length);
   const [edgeCnt, setEdgeCnt] = useState(initialEdges.length);
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
@@ -32,11 +42,27 @@ export const FunctionFlow: React.FC = () => {
   const { setShaderFunc } = useShaderFuncState();
 
   useEffect(() => {
+    // Inject onNodeDataChange function to initial nodes.
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          onNodeDataChange,
+        },
+      }))
+    );
+  }, []);
+
+  useEffect(() => {
     if (!shouldBuildFunc) {
       return;
     }
 
-    const { result: func, isValid } = buildQuantizationFunc(nodes, edges);
+    const { result: func, isValid } = buildQuantizationFunc(
+      nodes as NodeObject[],
+      edges
+    );
 
     console.log(func);
     console.log(isValid);
@@ -133,18 +159,40 @@ export const FunctionFlow: React.FC = () => {
     [edgeUpdateSuccessful]
   );
 
-  const addNode = (nodeType: NodeType): void => {
-    setNodes((prev) => [
-      ...prev,
-      {
-        id: `${nodeType}_${nodeCnt}`,
-        type: nodeType,
-        data: {},
-        position: { x: 0, y: -50 },
-      },
-    ]);
-    setNodeCnt((prev) => prev + 1);
-  };
+  const onNodeDataChange: OnNodeDataChange = useCallback<OnNodeDataChange>(
+    (nodeId, nodeData) => {
+      setNodes((nds) =>
+        nds.map((node) => {
+          if (node.id !== nodeId) {
+            return node;
+          }
+
+          return {
+            ...node,
+            data: nodeData,
+          };
+        })
+      );
+      setShouldBuildFunc(true);
+    },
+    []
+  );
+
+  const addNode = useCallback(
+    (nodeType: NodeType, position: { x: number; y: number }): void => {
+      setNodes((prev) => [
+        ...prev,
+        getDefaultNodeObjectBasedOnNodeType({
+          nodeType,
+          nodeId: nodeCnt,
+          position,
+          onNodeDataChange,
+        }),
+      ]);
+      setNodeCnt((prev) => prev + 1);
+    },
+    []
+  );
 
   return (
     <div className={styles.reactFlow}>
@@ -160,44 +208,15 @@ export const FunctionFlow: React.FC = () => {
         onEdgeUpdateEnd={onEdgeUpdateEnd}
         fitView
       >
-        <FlowPanel addNode={addNode} />
+        <FlowPanel
+          addNode={(nodeType) => addNode(nodeType, { x: 0, y: -50 })}
+        />
         <Controls />
         <MiniMap />
         <Background variant={BackgroundVariant.Cross} />
       </ReactFlow>
     </div>
   );
-};
-
-const getDefaultNodeObjectBasedOnNodeType = (
-  nodeType: NodeType,
-  nodeId: number,
-  position: { x: number; y: number }
-): NodeObject => {
-  switch (nodeType) {
-    case NodeType.inputPosition:
-    case NodeType.outputFunc:
-      return {
-        id: `${nodeType}_${nodeId}`,
-        type: nodeType,
-        data: {},
-        position,
-      };
-    case NodeType.basicMath:
-      return {
-        id: `${nodeType}_${nodeId}`,
-        type: nodeType,
-        data: { operation: BasicMathOp.Add },
-        position,
-      };
-    case NodeType.periodicFunc:
-      return {
-        id: `${nodeType}_${nodeId}`,
-        type: nodeType,
-        data: { operation: "asd" },
-        position,
-      };
-  }
 };
 
 const styles = {
