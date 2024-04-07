@@ -2,7 +2,7 @@ import { Handle, Node, NodeProps, Position } from "reactflow";
 import { nodeStyles } from "./nodeStyles";
 import { NodeType } from "./types";
 
-export type InputPositionNodeData = {};
+export type InputPositionNodeData = Record<string, never>;
 
 export type InputPositionNodeObject = Node<
   InputPositionNodeData,

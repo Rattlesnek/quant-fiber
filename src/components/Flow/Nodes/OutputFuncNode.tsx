@@ -2,7 +2,7 @@ import { Handle, Node, NodeProps, Position } from "reactflow";
 import { nodeStyles } from "./nodeStyles";
 import { NodeType } from "./types";
 
-export type OutputFuncNodeData = {};
+export type OutputFuncNodeData = Record<string, never>;
 
 export type OutputFuncNodeObject = Node<
   OutputFuncNodeData,

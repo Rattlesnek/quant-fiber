@@ -41,6 +41,25 @@ export const FunctionFlow: React.FC<FunctionFlowProps> = () => {
 
   const { setShaderFunc } = useShaderFuncState();
 
+  const onNodeDataChange: OnNodeDataChange = useCallback<OnNodeDataChange>(
+    (nodeId, nodeData) => {
+      setNodes((nds) =>
+        nds.map((node) => {
+          if (node.id !== nodeId) {
+            return node;
+          }
+
+          return {
+            ...node,
+            data: nodeData,
+          };
+        })
+      );
+      setShouldBuildFunc(true);
+    },
+    []
+  );
+
   useEffect(() => {
     // Inject onNodeDataChange function to initial nodes.
     setNodes((nds) =>
@@ -52,7 +71,7 @@ export const FunctionFlow: React.FC<FunctionFlowProps> = () => {
         },
       }))
     );
-  }, []);
+  }, [onNodeDataChange]);
 
   useEffect(() => {
     if (!shouldBuildFunc) {
@@ -72,7 +91,7 @@ export const FunctionFlow: React.FC<FunctionFlowProps> = () => {
     }
 
     setShouldBuildFunc(false);
-  }, [nodes, edges]);
+  }, [shouldBuildFunc, nodes, edges, setShaderFunc, setShouldBuildFunc]);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -148,7 +167,7 @@ export const FunctionFlow: React.FC<FunctionFlowProps> = () => {
   );
 
   const onEdgeUpdateEnd = useCallback(
-    (_: any, edge: Edge) => {
+    (_: MouseEvent | TouchEvent, edge: Edge) => {
       if (!edgeUpdateSuccessful.current) {
         setEdges((eds) => eds.filter((e) => e.id !== edge.id));
       }
@@ -157,25 +176,6 @@ export const FunctionFlow: React.FC<FunctionFlowProps> = () => {
       setShouldBuildFunc(true);
     },
     [edgeUpdateSuccessful]
-  );
-
-  const onNodeDataChange: OnNodeDataChange = useCallback<OnNodeDataChange>(
-    (nodeId, nodeData) => {
-      setNodes((nds) =>
-        nds.map((node) => {
-          if (node.id !== nodeId) {
-            return node;
-          }
-
-          return {
-            ...node,
-            data: nodeData,
-          };
-        })
-      );
-      setShouldBuildFunc(true);
-    },
-    []
   );
 
   const addNode = useCallback(
@@ -191,7 +191,7 @@ export const FunctionFlow: React.FC<FunctionFlowProps> = () => {
       ]);
       setNodeCnt((prev) => prev + 1);
     },
-    []
+    [nodeCnt, onNodeDataChange]
   );
 
   return (
