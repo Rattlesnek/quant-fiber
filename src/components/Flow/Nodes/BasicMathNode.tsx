@@ -27,7 +27,7 @@ export const BasicMathNode: React.FC<NodeProps<BasicMathNodeData>> = ({
 
   return (
     <div className={nodeStyles.node}>
-      <div className={styles.nodeContent}>
+      <div>
         <Select
           className="nodrag"
           size="small"
@@ -67,8 +67,4 @@ export const BasicMathNode: React.FC<NodeProps<BasicMathNodeData>> = ({
       <Handle id="out" type="source" position={Position.Right} />
     </div>
   );
-};
-
-const styles = {
-  nodeContent: css``,
 };

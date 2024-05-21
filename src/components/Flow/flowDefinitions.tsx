@@ -1,7 +1,7 @@
 import { Edge } from "reactflow";
 import { NodeObject, NodeType, OnNodeDataChange } from "./Nodes/types";
 import { BasicMathNodeData, BasicMathOp } from "./Nodes/BasicMathNode";
-import { PeriodicFuncNodeData } from "./Nodes/PeriodicFuncNode";
+import { PeriodicFuncNodeData, PeriodicFuncOp } from "./Nodes/PeriodicFuncNode";
 
 export const getDefaultNodeObjectBasedOnNodeType = ({
   nodeId,
@@ -34,7 +34,7 @@ export const getDefaultNodeObjectBasedOnNodeType = ({
       return {
         id: `${nodeType}_${nodeId}`,
         type: nodeType,
-        data: { operation: "", onNodeDataChange },
+        data: { operation: PeriodicFuncOp.Sin, onNodeDataChange },
         position,
       };
   }
@@ -59,7 +59,7 @@ export const initialNodes: NodeObject[] = [
     id: "periodicFunc_1",
     type: NodeType.periodicFunc,
     data: {
-      operation: "",
+      operation: PeriodicFuncOp.Sin,
     } as PeriodicFuncNodeData,
     position: { x: 200, y: 0 },
   },

@@ -41,38 +41,36 @@ export const RenderControls: React.FC = () => {
   };
 
   return (
-    <>
-      <Grid
-        container
-        spacing={5}
-        paddingLeft={4}
-        paddingRight={4}
-        paddingTop={1}
-        paddingBottom={1}
-      >
-        <Grid item xs={10}>
-          <RangeSlider
-            onValueChange={(value) => {
-              const newParams: RenderParams = {
-                ...renderParams,
-                xDomain: value,
-              };
+    <Grid
+      container
+      spacing={5}
+      paddingLeft={4}
+      paddingRight={4}
+      paddingTop={1}
+      paddingBottom={1}
+    >
+      <Grid item xs={11}>
+        <RangeSlider
+          onValueChange={(value) => {
+            const newParams: RenderParams = {
+              ...renderParams,
+              xDomain: value,
+            };
 
-              sendData(newParams);
-              setRenderParams(newParams);
-            }}
-          />
-        </Grid>
-        <Grid item xs={1}>
-          <Button
-            variant="contained"
-            disabled={isVisualWindowOpen()}
-            onClick={openVisualWindow}
-          >
-            Open
-          </Button>
-        </Grid>
+            sendData(newParams);
+            setRenderParams(newParams);
+          }}
+        />
       </Grid>
-    </>
+      <Grid item xs={1}>
+        <Button
+          variant="contained"
+          disabled={isVisualWindowOpen()}
+          onClick={openVisualWindow}
+        >
+          Open
+        </Button>
+      </Grid>
+    </Grid>
   );
 };

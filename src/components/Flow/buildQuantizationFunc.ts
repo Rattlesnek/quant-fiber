@@ -2,7 +2,10 @@ import { Node, Edge } from "reactflow";
 import { NodeObject, NodeType } from "./Nodes/types";
 import { BasicMathNodeObject, BasicMathOp } from "./Nodes/BasicMathNode";
 import { OutputFuncNodeObject } from "./Nodes/OutputFuncNode";
-import { PeriodicFuncNodeObject } from "./Nodes/PeriodicFuncNode";
+import {
+  PeriodicFuncNodeObject,
+  PeriodicFuncOp,
+} from "./Nodes/PeriodicFuncNode";
 
 type FuncResult = {
   result: string;
@@ -91,6 +94,12 @@ const getBasicMath = (
   };
 };
 
+const periodicFuncOpMapping: Record<PeriodicFuncOp, string> = {
+  [PeriodicFuncOp.Sin]: "sin",
+  [PeriodicFuncOp.Cos]: "cos",
+  [PeriodicFuncOp.Tan]: "tan",
+};
+
 const getPeriodicFunc = (
   nodes: NodeObject[],
   edges: Edge[],
@@ -102,14 +111,17 @@ const getPeriodicFunc = (
   }
   const inNode = nodes.find((node) => node.id === inEdge.source)!;
 
+  const { operation } = currentNode.data;
   const inputParam = getInputParam(inNode, inEdge);
   if (inputParam !== null) {
-    return validResult(`    float ${currentNode.id} = sin(${inputParam});\n`);
+    return validResult(
+      `    float ${currentNode.id} = ${periodicFuncOpMapping[operation]}(${inputParam});\n`
+    );
   }
 
   const previousResult = getQuantFunc(nodes, edges, inNode);
 
-  const result = `${previousResult.result}    float ${currentNode.id} = sin(${inEdge.source});\n`;
+  const result = `${previousResult.result}    float ${currentNode.id} = ${periodicFuncOpMapping[operation]}(${inEdge.source});\n`;
   return { result, isValid: previousResult.isValid };
 };
 
