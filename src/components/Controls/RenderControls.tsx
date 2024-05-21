@@ -1,9 +1,9 @@
 import { Button, Grid } from "@mui/material";
-import { useWebRTC } from "../tabCommunication/useWebRTC";
-import { useRenderParamsState } from "../state/renderParamsState";
+import { useWebRTC } from "../../tabCommunication/useWebRTC";
+import { useRenderParamsState } from "../../state/renderParamsState";
 import { useState } from "react";
-import { RangeSlider } from "./RangeSlider";
-import { RenderParams } from "../rendering/types";
+import { RangeSlider } from "../Slider/RangeSlider";
+import { RenderParams } from "../../rendering/types";
 
 export const RenderControls: React.FC = () => {
   const [visualWindow, setVisualWindow] = useState<Window | null>(null);
