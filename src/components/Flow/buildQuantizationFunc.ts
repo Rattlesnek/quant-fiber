@@ -23,7 +23,10 @@ const validResult = (result: string): FuncResult => ({
 });
 
 const getInputParam = (currentNode: Node, currentEdge: Edge): string | null => {
-  if (currentNode.type !== NodeType.inputPosition) {
+  if (
+    currentNode.type !== NodeType.inputPosition &&
+    currentNode.type !== NodeType.inputTime
+  ) {
     return null;
   }
   return currentEdge.sourceHandle ?? null;
@@ -84,7 +87,7 @@ const getBasicMath = (
   });
 
   const { operation } = currentNode.data;
-  const result = `${previousResults.map((r) => r.result).join()}    float ${
+  const result = `${previousResults.map((r) => r.result).join("")}    float ${
     currentNode.id
   } = ${operationArgs.join(` ${basicMathOpMapping[operation]} `)};\n`;
 

@@ -1,13 +1,13 @@
 import { css } from "@emotion/css";
 import { RenderCanvas } from "../rendering/RenderCanvas";
-import { FunctionFlow } from "../components/Flow/FunctionFlow";
+import { Flow } from "../components/Flow/Flow";
 
 export const HomeView: React.FC = () => {
   return (
     <>
       <div className={styles.controls}>
         <div>
-          <FunctionFlow />
+          <Flow />
         </div>
       </div>
       <div className={styles.renderCanvas}>

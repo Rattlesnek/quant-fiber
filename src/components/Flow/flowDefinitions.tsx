@@ -16,6 +16,7 @@ export const getDefaultNodeObjectBasedOnNodeType = ({
 }): NodeObject => {
   switch (nodeType) {
     case NodeType.inputPosition:
+    case NodeType.inputTime:
     case NodeType.outputFunc:
       return {
         id: `${nodeType}_${nodeId}`,

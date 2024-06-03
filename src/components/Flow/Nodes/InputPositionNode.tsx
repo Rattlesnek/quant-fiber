@@ -17,12 +17,12 @@ export const InputPositionNode: React.FC<
     <div className={nodeStyles.node}>
       <div
         style={{
-          width: "50px",
+          width: "45px",
           height: "22px",
           lineHeight: "22px",
         }}
       >
-        <Typography>Input</Typography>
+        <Typography>Pos</Typography>
       </div>
       <Handle
         id="xPos"

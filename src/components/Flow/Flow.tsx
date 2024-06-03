@@ -30,9 +30,9 @@ import {
 import { FlowPanel } from "./FlowPanel";
 import { useShaderFuncState } from "../../state/shaderFuncState";
 
-interface FunctionFlowProps {}
+interface FlowProps {}
 
-export const FunctionFlow: React.FC<FunctionFlowProps> = () => {
+export const Flow: React.FC<FlowProps> = () => {
   const [nodeCnt, setNodeCnt] = useState(initialNodes.length);
   const [edgeCnt, setEdgeCnt] = useState(initialEdges.length);
   const [nodes, setNodes] = useState<Node[]>(initialNodes);

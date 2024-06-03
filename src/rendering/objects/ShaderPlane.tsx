@@ -1,12 +1,14 @@
 import { useFrame } from "@react-three/fiber";
 import { basicVertex, carthesianFrag, carthesianFragNoFunc } from "../shaders";
-import { ShaderMaterial } from "three";
+import * as THREE from "three";
 import { useEffect, useRef } from "react";
 import { useRenderParamsState } from "../../state/renderParamsState";
 import { useShaderFuncState } from "../../state/shaderFuncState";
 
+const clock = new THREE.Clock();
+
 export const ShaderPlane = (): JSX.Element => {
-  const shaderMaterialRef = useRef<ShaderMaterial>(null);
+  const shaderMaterialRef = useRef<THREE.ShaderMaterial>(null);
 
   const getRenderParams = useRenderParamsState(
     (state) => state.getRenderParams
@@ -29,6 +31,9 @@ export const ShaderPlane = (): JSX.Element => {
 
     shaderMaterialRef.current.uniforms.xDomain.value =
       getRenderParams().xDomain;
+
+    const delta = clock.getDelta();
+    shaderMaterialRef.current.uniforms.time.value += delta;
   });
 
   return (
