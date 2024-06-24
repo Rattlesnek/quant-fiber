@@ -1,2 +1,2 @@
 # quant-fiber
-Visualization tool
+Visualization tool [in development]
